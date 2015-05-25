@@ -1,5 +1,7 @@
 # Chap3
 
+https://www.evernote.com/shard/s519/sh/cba3c856-6386-4758-af59-5cf58cffac64/9fa73832ccf45e24
+
 길이가 고정이면 Array 사용, 가변이면 ArrayBuffer 사용
 초기 값을 줄 때 new 를 사용하지 않음.
 원소 접근에는 ()를 사용
