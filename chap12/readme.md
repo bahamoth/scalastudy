@@ -24,6 +24,7 @@ high order function : first class citizen으로 쓰인 개별 function을 지칭
 ## anonymous function
 high order function에 이름이 없음을 주목하면 anonymous function
 variable 에 할당했다고 해서 anonymous function에 이름이 생긴건 아니다.
+scala에서 anonymous function의 구현은 anonymous inner class이다.
 ```scala
 //scala function literal
 scala> (x: Int) => x + 1
@@ -66,6 +67,17 @@ res26: scala.collection.immutable.IndexedSeq[Int] = Vector(1, 4, 9, 16, 25, 36, 
 
 ## 익명 함수
 ```scala
+scala> (1 to 10).toArray.map((x: Int) => 3*x)
+res19: Array[Int] = Array(3, 6, 9, 12, 15, 18, 21, 24, 27, 30)
+
+scala> (1 to 10).toArray.map(x => 3*x)
+res21: Array[Int] = Array(3, 6, 9, 12, 15, 18, 21, 24, 27, 30)
+
+scala> (1 to 10).toArray.map(3*_)
+res20: Array[Int] = Array(3, 6, 9, 12, 15, 18, 21, 24, 27, 30)
+```
+
+```scala
 scala> val fun = (x: Int) => x * x
 fun: Int => Int = <function1>
 
@@ -82,4 +94,112 @@ print("def: " + fun(3))
 }
 
 print("결과는?: " + fun(3))
+```
+
+
+## 함수 인자를 받는 함수
+```scala
+scala> def a(f: Double => Double) = f(0.25)
+a: (f: Double => Double)Double
+
+scala> import scala.math._
+a(ceil _)
+scala> res22: Double = 1.0
+
+a(sqrt _)
+scala> res23: Double = 0.5
+```
+
+## 함수를 return하는 함수
+```scala
+scala> def a(x: Int) = (param: Int) => param * x
+a: (x: Int)Int => Int
+
+scala> val b = a(666)
+b: Int => Int = <function1>
+
+scala> b(666)
+res24: Int = 443556
+```
+## parameter 타입 추론
+```scala
+def a(f: Double => Double) = f(0.25)
+
+scala> a(x => x*1.1)
+res25: Double = 0.275
+
+scala> a(_ * 20)
+res27: Double = 5.0
+```
+
+## closure의 scope(=free variable을 참조하는 방법)
+```scala
+class foo(val Value:Int = 666) {
+}
+
+var myFoo = new foo()
+
+def makeBar(param: foo) = () => print(param.Value)
+
+val bar = makeBar(myFoo)
+val bar2 = () => print(myFoo.Value)
+
+bar()
+bar2()
+
+var myFoo2 = myFoo
+myFoo = new foo(777)
+
+bar()
+bar2()
+
+scala> 666
+scala> 666
+
+scala> myFoo2: foo = foo@349d0836
+scala> myFoo: foo = foo@4390f46e
+
+scala> 666
+scala> 777
+```
+
+## SAM 변환
+```scala
+import javax.swing.JButton
+import java.awt.event.{ActionEvent, ActionListener}
+
+val button = new JButton("Button!!")
+
+//원래는 이렇게 해야 함
+button.addActionListener(new ActionListener {
+  override def actionPerformed(e: ActionEvent): Unit = {print("hello")}
+})
+
+scala> button.addActionListener((e: ActionEvent) => print("hello"))
+<console>:17: error: type mismatch;
+ found   : java.awt.event.ActionEvent => Unit
+ required: java.awt.event.ActionListener
+              button.addActionListener((e: ActionEvent) => print("hello"))
+              
+//implicit SAM 변환을 다음과 같이 구현할 수 있다.
+scala> implicit def makeAction(a: (ActionEvent) => Unit) = new ActionListener {
+  override def actionPerformed(e: ActionEvent): Unit = a(e)
+} 
+button.addActionListener((e: ActionEvent) => print("hello"))
+```
+
+##커링
+```scala
+scala> def b(x: Int) = (y: Int) => x * y
+b: (x: Int)Int => Int
+
+
+scala> b(5)
+res33: Int => Int = <function1>
+
+scala> res33(6)
+res34: Int = 30
+
+scala> b(5)(6)
+res31: Int = 30
 ```
