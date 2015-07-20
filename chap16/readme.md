@@ -51,3 +51,22 @@ scala> res4 \ "li"
 res6: scala.xml.NodeSeq = NodeSeq(<li>a</li>, <li>b</li>, <li>c</li>)
 ```
 
+## XML 변환
+```scala
+res4: scala.xml.Elem = <ul><li>a</li><li>b</li><li>c</li></ul>
+
+scala> val rule1 = new xml.transform.RewriteRule{
+  override def transform(n: xml.Node) = n match {
+    case e @ <ul>{_*}</ul> => e.asInstanceOf[xml.Elem].copy(label="ol")
+    case _ => n
+  }
+}
+     |      |      |      |      | rule1: scala.xml.transform.RewriteRule = <function1>
+
+scala> import scala.xml.transform.RuleTransformer
+
+val transform = new RuleTransformer(rule1).transform(res4)
+import scala.xml.transform.RuleTransformer
+
+scala> transform: Seq[scala.xml.Node] = List(<ol><li>a</li><li>b</li><li>c</li></ol>)
+```
